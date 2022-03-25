@@ -12,8 +12,6 @@ require (
 	github.com/gorilla/websocket v1.4.1 // indirect
 	github.com/h2non/bimg v1.1.5
 	github.com/hirochachacha/go-smb2 v1.0.2
-	//github.com/kr/pty v1.1.8
-	//github.com/mattn/go-sqlite3 v2.0.2+incompatible
 	github.com/mickael-kerjean/net v0.0.0-20191120063050-2457c043ba06
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/patrickmn/go-cache v2.1.0+incompatible
