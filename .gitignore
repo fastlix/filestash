@@ -3,6 +3,7 @@ dist/
 *_generated.go
 test/
 pkg/
+.idea/
 *.a
 *.o
 *.bin

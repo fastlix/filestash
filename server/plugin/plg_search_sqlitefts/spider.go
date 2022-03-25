@@ -5,6 +5,8 @@ import (
 	"database/sql"
 	"encoding/base64"
 	"github.com/mattn/go-sqlite3"
+
+	//"github.com/mattn/go-sqlite3"
 	. "github.com/mickael-kerjean/filestash/server/common"
 	"github.com/mickael-kerjean/filestash/server/model/formater"
 	"hash/fnv"
