@@ -5,7 +5,9 @@ import (
 	"crypto/tls"
 	"database/sql"
 	"encoding/json"
+	. "github.com/mickael-kerjean/filestash/server/common"
 	"golang.org/x/crypto/bcrypt"
+	"gopkg.in/gomail.v2"
 	"html/template"
 	"net/http"
 	"strings"
@@ -154,12 +156,12 @@ func ShareProofVerifier(s Share, proof Proof) (Proof, error) {
 		user := v
 
 		// prepare the verification code
-		stmt, err := DB.Prepare("INSERT INTO Verification(key, code) VALUES(?, ?)")
+		stmt, err := DB.Prepare("INSERT INTO Verification(`key`, code, expire) VALUES(?, ?, ?)")
 		if err != nil {
 			return p, err
 		}
 		code := RandomString(4)
-		if _, err := stmt.Exec("email::"+user, code); err != nil {
+		if _, err := stmt.Exec("email::"+user, code, time.Now()); err != nil {
 			return p, err
 		}
 

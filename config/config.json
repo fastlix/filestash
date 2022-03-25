@@ -1,4 +1,8 @@
 {
+    "database": {
+      "driver_name": "mysql",
+      "data_source_name": "root@127.0.0.1/filestash"
+    },
     "general": {
     },
     "features": {

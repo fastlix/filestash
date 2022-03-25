@@ -2,6 +2,8 @@ package model
 
 import (
 	"database/sql"
+	"github.com/go-sql-driver/mysql"
+	_ "github.com/go-sql-driver/mysql"
 	. "github.com/mickael-kerjean/filestash/server/common"
 	"os"
 	"path/filepath"
@@ -13,24 +15,50 @@ var DB *sql.DB
 func init() {
 	cachePath := filepath.Join(GetCurrentDir(), DB_PATH)
 	os.MkdirAll(cachePath, os.ModePerm)
-	var err error
-	if DB, err = sql.Open("sqlite3", cachePath+"/share.sql?_fk=true"); err != nil {
-		return
+
+	DB, err := sql.Open(Config.Get("database.driver_name").String(), Config.Get("database.data_source_name").String())
+	if err != nil {
+		panic(err)
 	}
 
-	if stmt, err := DB.Prepare("CREATE TABLE IF NOT EXISTS Location(backend VARCHAR(16), path VARCHAR(512), CONSTRAINT pk_location PRIMARY KEY(backend, path))"); err == nil {
-		stmt.Exec()
+	stmt, err := DB.Prepare("CREATE TABLE IF NOT EXISTS Location(backend VARCHAR(16), path VARCHAR(512), CONSTRAINT pk_location PRIMARY KEY(backend, path))")
+	if err != nil {
+		panic(err)
 	}
 
-	if stmt, err := DB.Prepare("CREATE TABLE IF NOT EXISTS Share(id VARCHAR(64) PRIMARY KEY, related_backend VARCHAR(16), related_path VARCHAR(512), params JSON, auth VARCHAR(4093) NOT NULL, FOREIGN KEY (related_backend, related_path) REFERENCES Location(backend, path) ON UPDATE CASCADE ON DELETE CASCADE)"); err == nil {
-		stmt.Exec()
+	_, err = stmt.Exec()
+	if err != nil {
+		panic(err)
 	}
 
-	if stmt, err := DB.Prepare("CREATE TABLE IF NOT EXISTS Verification(key VARCHAR(512), code VARCHAR(4), expire DATETIME DEFAULT (datetime('now', '+10 minutes')))"); err == nil {
-		stmt.Exec()
-		if stmt, err = DB.Prepare("CREATE INDEX idx_verification ON Verification(code, expire)"); err == nil {
-			stmt.Exec()
-		}
+	stmt, err = DB.Prepare("CREATE TABLE IF NOT EXISTS Share(id VARCHAR(64) PRIMARY KEY, related_backend VARCHAR(16), related_path VARCHAR(512), params JSON, auth VARCHAR(4093) NOT NULL, FOREIGN KEY (related_backend, related_path) REFERENCES Location(backend, path) ON UPDATE CASCADE ON DELETE CASCADE)")
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = stmt.Exec()
+	if err != nil {
+		panic(err)
+	}
+
+	stmt, err = DB.Prepare("CREATE TABLE IF NOT EXISTS Verification(`key` VARCHAR(512), code VARCHAR(4), expire DATETIME NOT NULL)")
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = stmt.Exec()
+	if err != nil {
+		panic(err)
+	}
+
+	stmt, err = DB.Prepare("CREATE INDEX idx_verification ON Verification(code, expire)")
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = stmt.Exec()
+	if err != nil && err.(*mysql.MySQLError).Number != 1061 {
+		panic(err)
 	}
 
 	go func() {

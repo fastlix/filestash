@@ -38,7 +38,9 @@ func IndexHandler(_path string) func(App, http.ResponseWriter, *http.Request) {
 		}
 		url := urlObj.Path
 
-		if url != URL_SETUP && Config.Get("auth.admin").String() == "" {
+		authAdmin := Config.Get("auth.admin").String()
+
+		if url != URL_SETUP && authAdmin == "" {
 			http.Redirect(res, req, URL_SETUP, http.StatusTemporaryRedirect)
 			return
 		} else if url != "/" && strings.HasPrefix(url, "/s/") == false &&
